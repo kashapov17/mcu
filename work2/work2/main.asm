@@ -34,13 +34,12 @@ arr_B_raw: .db 6,1,8,9,1,0,3,5
 	ldi XH, HIGH(@1)
 	ldi rsize, @2
 	ldi ritem, 0
-	ldi ridx, 0
+	mov ridx, rsize
 load_loop:
 	lpm ritem, Z+
 	st X+, ritem
-	inc ridx
-	cpse ridx, rsize
-	rjmp load_loop
+	dec ridx
+	brne load_loop
 end:
 	.undef rsize
 	.undef ridx
@@ -57,7 +56,7 @@ end:
 	ldi XL, LOW(@2)
 	ldi XH, HIGH(@2)
 	ldi rsize, @1
-	ldi ridx, 0
+	mov ridx, rsize 
 	ldi ritem, 0
 	ld rmax, Z
 find_loop:
@@ -65,9 +64,8 @@ find_loop:
 	cp rmax, ritem
 	brlo set_max
 after_max_setting:
-	inc ridx
-	cpse ridx, rsize
-	rjmp find_loop
+	dec ridx
+	brne find_loop
 	rjmp end
 set_max:
 	mov rmax,ritem
@@ -84,3 +82,5 @@ load_arrays:
 	LOAD_ARR_TO_MEM arr_A_raw, arr_A_mem, A_size
 	LOAD_ARR_TO_MEM arr_B_raw, arr_B_mem, B_size
 	MAX_FROM_ARRAY arr_B_mem, B_size, item
+	nop
+	nop
