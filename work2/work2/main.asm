@@ -22,10 +22,9 @@ item: .byte 1
 
 .cseg
 arr_A_raw: .db 5,1,8,2,1,6,8,3
-arr_B_raw: .db 6,6,4,9,1,0,3,5
+arr_B_raw: .db 6,1,8,9,1,0,3,5
 
-.macro LOAD_ARR_TO_MEM 
-load_arr:
+.macro LOAD_ARR_TO_MEM
 	.def rsize=r22
 	.def ridx=r23
 	.def ritem=r24
@@ -42,12 +41,46 @@ load_loop:
 	inc ridx
 	cpse ridx, rsize
 	rjmp load_loop
+end:
+	.undef rsize
+	.undef ridx
+	.undef ritem
 .endm
 
-loadA:
+.macro MAX_FROM_ARRAY
+	.def rsize=r22
+	.def rmax=r23
+	.def ridx=r24
+	.def ritem=r25
+	ldi ZL, LOW(@0)
+	ldi ZH, HIGH(@0)
+	ldi XL, LOW(@2)
+	ldi XH, HIGH(@2)
+	ldi rsize, @1
+	ldi ridx, 0
+	ldi ritem, 0
+	ld rmax, Z
+find_loop:
+	ld ritem, Z+
+	cp rmax, ritem
+	brlo set_max
+after_max_setting:
+	inc ridx
+	cpse ridx, rsize
+	rjmp find_loop
+	rjmp end
+set_max:
+	mov rmax,ritem
+	rjmp after_max_setting
+end:
+	st X, rmax
+	.undef rsize
+	.undef rmax
+	.undef ridx
+	.undef ritem
+.endm	
+
+load_arrays:
 	LOAD_ARR_TO_MEM arr_A_raw, arr_A_mem, A_size
 	LOAD_ARR_TO_MEM arr_B_raw, arr_B_mem, B_size
-	nop
-	
-
-
+	MAX_FROM_ARRAY arr_B_mem, B_size, item
