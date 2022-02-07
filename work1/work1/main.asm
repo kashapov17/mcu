@@ -31,16 +31,15 @@ compDF:
 	ldi I,12
 	cp D,F
 	brlo setI
+	rjmp calcE
+setI:
+	ldi I,9
 calcE:
 	mul E,I
 calcR:
-	ldi R,0
+	clr R
 	sbrs r0,G
-	ldi R,0xFF
+	ser R
 end:
 	nop
 	rjmp end
-
-setI:
-	ldi I,9
-	rjmp calcE
