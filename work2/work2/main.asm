@@ -5,7 +5,7 @@
 ; Author: Yaroslav
 ; Task: op=diff, C_size=16, A_size=B_size=8, 
 ;		C_start_addr=0x75, item=max, 
-;		item_addr=0x8B, sort=desc  
+;		item_addr=0x8B, sort=desc
 ;
 
 .dseg
@@ -21,8 +21,8 @@ arr_C_mem: .byte C_size
 item: .byte 1
 
 .cseg
+arr_B_raw: .db 6,2,8,9,15,0,3,5
 arr_A_raw: .db 5,1,8,2,1,6,8,3
-arr_B_raw: .db 6,1,8,9,1,0,3,5
 
 .macro LOAD_ARR_TO_MEM
 	.def rsize=r22
@@ -35,8 +35,8 @@ arr_B_raw: .db 6,1,8,9,1,0,3,5
 	push ZH
 	push XL
 	push XH
-	ldi ZL, LOW(@0)
-	ldi ZH, HIGH(@0)
+	ldi ZL, LOW(2*@0)
+	ldi ZH, HIGH(2*@0)
 	ldi XL, LOW(@1)
 	ldi XH, HIGH(@1)
 	ldi rsize, @2
@@ -48,13 +48,13 @@ load_loop:
 	dec ridx
 	brne load_loop
 load_arr_to_mem_end:
+	pop XH
+	pop XL
+	pop ZH
+	pop ZL
 	pop ritem
 	pop ridx
 	pop rsize
-	pop ZL
-	pop ZH
-	pop XL
-	pop XH
 	.undef rsize
 	.undef ridx
 	.undef ritem
@@ -94,14 +94,14 @@ after_max_setting:
 	rjmp max_from_array_end
 max_from_array_end:
 	st X, rmax
-	pop rsize
-	pop rmax
-	pop ridx
-	pop ritem
-	pop ZL
-	pop ZH
-	pop XL
 	pop XH
+	pop XL
+	pop ZH
+	pop ZL
+	pop ritem
+	pop ridx
+	pop rmax
+	pop rsize
 	.undef rsize
 	.undef rmax
 	.undef ridx
@@ -157,13 +157,13 @@ swap_loop_end:
 	inc ridx
 	rjmp element_loop
 sort_end:
-	pop rkeyj
-	pop rkeyi
-	pop rsize
-	pop ridx
-	pop rjdx
-	pop ZL
 	pop ZH
+	pop ZL
+	pop rjdx
+	pop ridx
+	pop rsize
+	pop rkeyi
+	pop rkeyj
 	.undef rkeyi
 	.undef rkeyj
 	.undef rsize
@@ -194,8 +194,8 @@ init_stack:
 	out SPH, r16
 
 load_arrays:
-	LOAD_ARR_TO_MEM arr_A_raw, arr_A_mem, A_size
 	LOAD_ARR_TO_MEM arr_B_raw, arr_B_mem, B_size
+	LOAD_ARR_TO_MEM arr_A_raw, arr_A_mem, A_size
 
 perform_task:
 	MAX_FROM_ARRAY arr_B_mem, B_size, item
