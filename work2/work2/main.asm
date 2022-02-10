@@ -77,7 +77,7 @@ load_arr_to_mem_end:
 	ldi ZH, HIGH(@0)
 	ldi XL, LOW(@2)
 	ldi XH, HIGH(@2)
-	ldi rsize, @1
+	ldi rsize, @0
 	mov ridx, rsize 
 	ldi ritem, 0
 	ld rmax, Z
@@ -187,6 +187,71 @@ sort_end:
 	.undef rvar2
 .endm
 
+.macro DIFF_ARR
+	COPY_ARRAY @0, @1, @2
+	SORT_ARRAY @1, @2
+	.def ridx=r21
+	.def rsize=r22
+	.def ritem=r23
+	.def rnitem=r24
+	ldi YL, LOW(@1)
+	ldi YH, HIGH(@1)
+	ldi ridx, @2
+uniq_loop:
+	ld ritem, Y
+	mov XL, YL
+	mov XH, YH
+	dec ridx
+find_comp_loop:
+	adiw YH:YL, 1
+	ld rnitem, Y
+	cp ritem, rnitem
+	brne uniq_loop
+remove_item:
+	ldi rnitem, 0
+	st X, rnitem
+	st Y, rnitem
+	dec ridx
+find_comp_loop_post:
+	cpi ridx, 1
+	brne find_comp_loop
+uniq_set_loop_end:
+	.undef ridx
+	.undef rsize
+	.undef ritem
+	.undef rnitem
+.endm
+
+.macro COPY_ARRAY
+	.def risize=r23
+	.def ritem=r22
+	push risize
+	push ritem
+	push ZL
+	push ZH
+	push XL
+	push XH
+	ldi ZL, LOW(@0)
+	ldi ZH, HIGH(@0)
+	ldi XL, LOW(@1)
+	ldi XH, HIGH(@1)
+	ldi risize, @2
+copy_loop:
+	ld ritem, Z+
+	st X+, ritem
+	dec risize
+	brne copy_loop
+copy_array_end:
+	pop XH
+	pop XL
+	pop ZH
+	pop ZL
+	pop ritem
+	pop risize
+	.undef risize
+	.undef ritem
+.endm
+
 init_stack:
 	ldi r16, LOW(RAMEND)
 	out SPL, r16
@@ -197,8 +262,9 @@ load_arrays:
 	LOAD_ARR_TO_MEM arr_B_raw, arr_B_mem, B_size
 	LOAD_ARR_TO_MEM arr_A_raw, arr_A_mem, A_size
 
-perform_task:
-	MAX_FROM_ARRAY arr_B_mem, B_size, item
-	SORT_ARRAY arr_A_mem, A_size
-	SORT_ARRAY arr_B_mem, B_size
+diff_arrays:
+	DIFF_ARR arr_A_mem, arr_C_mem, C_size
 
+find_max:
+	MAX_FROM_ARRAY arr_C_mem, C_size, item
+	nop
