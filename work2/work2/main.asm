@@ -24,6 +24,10 @@ item: .byte 1
 arr_B_raw: .db 6,2,8,9,15,0,3,5
 arr_A_raw: .db 5,1,8,2,1,6,8,3
 
+; load array from program memory to sram
+; args: @0 - pointer to the array from program memory
+;	@1 - pointer to the array from sram
+;	@2 - size of array
 .macro LOAD_ARR_TO_MEM
 	.def rsize=r22
 	.def ridx=r23
@@ -60,6 +64,10 @@ load_arr_to_mem_end:
 	.undef ritem
 .endm
 
+; find max element from array
+; args: @0 - pointer to the array
+;	@1 - size of array
+;	@2 - memory pointer where max element will be placed
 .macro MAX_FROM_ARRAY
 	.def rsize=r22
 	.def rmax=r23
@@ -110,6 +118,8 @@ max_from_array_end:
 
 ; insertion or selection sort (I don't know :) I just got it from my mind)
 ; (descending mode). best O(n) avg and worst O(n^2)
+; args:	@0 - pointer to th array 
+;	@1 - size of array
 .macro SORT_ARRAY
 	.def rkeyj=r22
 	.def rkeyi=r21
@@ -172,6 +182,8 @@ sort_end:
 .endm
 
 ;swap two value in memory space
+; args: @0 - memory pointer to var1
+;	@1 - memory pointer to var2
 .macro swp
 	.def rvar1=r22
 	.def rvar2=r23
@@ -187,6 +199,10 @@ sort_end:
 	.undef rvar2
 .endm
 
+; make diff with two arrays
+; args:	@0 - memory pointer to byte sequence
+;	@1 - memory pointer to result array
+;	@2 - size of result array
 .macro DIFF_ARR
 	COPY_ARRAY @0, @1, @2
 	SORT_ARRAY @1, @2
@@ -194,6 +210,14 @@ sort_end:
 	.def rsize=r22
 	.def ritem=r23
 	.def rnitem=r24
+	push ridx
+	push rsize
+	push ritem
+	push rnitem
+	push YL
+	push YH
+	push XL
+	push XH 
 	ldi YL, LOW(@1)
 	ldi YH, HIGH(@1)
 	ldi ridx, @2
@@ -216,12 +240,24 @@ find_comp_loop_post:
 	cpi ridx, 1
 	brne find_comp_loop
 uniq_set_loop_end:
+	push XH 
+	push XL
+	push YH
+	push YL
+	push rnitem
+	push ritem
+	push rsize
+	push ridx
 	.undef ridx
 	.undef rsize
 	.undef ritem
 	.undef rnitem
 .endm
 
+; copy array two array to another place of memory
+; args: @0 - pointer to array (source)
+; 	@1 - pointer to array (destination)
+;	@2 - size of destination array 
 .macro COPY_ARRAY
 	.def risize=r23
 	.def ritem=r22
