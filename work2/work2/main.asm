@@ -31,6 +31,10 @@ arr_B_raw: .db 6,1,8,9,1,0,3,5
 	push rsize
 	push ridx
 	push ritem
+	push ZL
+	push ZH
+	push XL
+	push XH
 	ldi ZL, LOW(@0)
 	ldi ZH, HIGH(@0)
 	ldi XL, LOW(@1)
@@ -47,6 +51,10 @@ load_arr_to_mem_end:
 	pop ritem
 	pop ridx
 	pop rsize
+	pop ZL
+	pop ZH
+	pop XL
+	pop XH
 	.undef rsize
 	.undef ridx
 	.undef ritem
@@ -61,6 +69,10 @@ load_arr_to_mem_end:
 	push rmax
 	push ridx
 	push ritem
+	push ZL
+	push ZH
+	push XL
+	push XH
 	ldi ZL, LOW(@0)
 	ldi ZH, HIGH(@0)
 	ldi XL, LOW(@2)
@@ -82,10 +94,14 @@ after_max_setting:
 	rjmp max_from_array_end
 max_from_array_end:
 	st X, rmax
-	push rsize
-	push rmax
-	push ridx
-	push ritem
+	pop rsize
+	pop rmax
+	pop ridx
+	pop ritem
+	pop ZL
+	pop ZH
+	pop XL
+	pop XH
 	.undef rsize
 	.undef rmax
 	.undef ridx
@@ -105,6 +121,8 @@ max_from_array_end:
 	push rsize
 	push ridx
 	push rjdx
+	push ZL
+	push ZH
 	ldi ZL, LOW(@0)
 	ldi ZH, HIGH(@0)
 	ldi ridx, 0
@@ -144,6 +162,8 @@ sort_end:
 	pop rsize
 	pop ridx
 	pop rjdx
+	pop ZL
+	pop ZH
 	.undef rkeyi
 	.undef rkeyj
 	.undef rsize
