@@ -9,10 +9,10 @@
 .def tmp=r21
 .def dly=r22
 .equ bit_svalue=0x0F
-.equ btn1=0x04
-.equ btn2=0x03
+.equ btn1=0x00
+.equ btn2=0x01
 .equ btn3=0x02
-.equ btn4=0x01
+.equ btn4=0x03
 .def loop_count=r18
 .def iLoopRl=r24
 .def iLoopRh=r25
@@ -26,20 +26,22 @@ init:
 	out SPH, r16
 	ldi bit_str, bit_svalue
 	ser tmp
-	out DDRC, tmp
-	clr tmp
 	out DDRB, tmp
+	clr tmp
+	out DDRD, tmp
+	com bit_str	
 
 check_loop:
-	out PORTC, bit_str
-	sbis PINB, btn1
-	inc bit_str
-	sbis PINB, btn2
-	rol bit_str
-	sbis PINB, btn3
-	rol bit_str
-	sbis PINB, btn4
+	out PORTB, bit_str
+	sec
+	sbis PIND, btn1
 	dec bit_str
+	sbis PIND, btn2
+	ror bit_str
+	sbis PIND, btn3
+	rol bit_str
+	sbis PIND, btn4
+	inc bit_str
 	ldi loop_count, 50 // 50*10 = 500ms delay
 	rcall delay
 	rjmp check_loop
@@ -55,4 +57,3 @@ inner_loop:
 	brne delay
 	nop
 	ret
-	
