@@ -54,9 +54,9 @@ place_max:
 	st X, ritem
 find_and_place_min:
 	ld ritem, Z+
-	st Y, ritem
 	cpi ritem, 0
 	breq find_loop_end
+	st Y, ritem
 	dec rsize
 	brne find_and_place_min
 find_loop_end:
